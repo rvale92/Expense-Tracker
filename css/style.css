@@ -446,15 +446,48 @@ select:focus {
         width: 100%;
         z-index: 1000;
         transition: left 0.3s ease;
+        background: var(--surface-color);
+        box-shadow: var(--shadow-lg);
     }
     
     .sidebar.active {
         left: 0;
     }
     
+    .mobile-nav-toggle {
+        display: flex;
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1001;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .mobile-nav-toggle .fa-times {
+        display: none;
+    }
+    
+    .mobile-nav-toggle.active .fa-bars {
+        display: none;
+    }
+    
+    .mobile-nav-toggle.active .fa-times {
+        display: inline;
+    }
+    
     .main-content {
         margin-left: 0;
         width: 100%;
+        padding: 1rem;
     }
     
     .nav-item {
@@ -486,10 +519,13 @@ select:focus {
         width: 95%;
         max-width: 95%;
         margin: 1rem;
+        padding: 0;
     }
     
     .modal-content {
         padding: 1rem;
+        max-height: 90vh;
+        overflow-y: auto;
     }
     
     .form-group {
@@ -498,17 +534,22 @@ select:focus {
     
     .form-group label {
         font-size: 1rem;
+        display: block;
+        margin-bottom: 0.5rem;
     }
     
     .form-group input,
     .form-group select {
+        width: 100%;
         padding: 0.75rem;
         font-size: 1rem;
     }
     
     .button {
+        width: 100%;
         padding: 0.75rem 1rem;
         font-size: 1rem;
+        margin-bottom: 0.5rem;
     }
     
     /* Improve touch targets */
@@ -578,6 +619,7 @@ select:focus {
     /* Improve widget layout */
     .widget {
         padding: 1rem;
+        margin-bottom: 1rem;
     }
     
     .widget-header {
@@ -591,6 +633,41 @@ select:focus {
     /* Fix chart containers */
     .chart-container {
         height: 200px;
+    }
+    
+    /* Fix iOS input zoom */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+    
+    /* Prevent text selection on mobile */
+    .nav-item,
+    .button,
+    .switcher-select {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+    
+    /* Add touch feedback */
+    .nav-item:active,
+    .button:active,
+    .switcher-select:active {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+    
+    /* Fix iOS momentum scrolling */
+    .modal-content,
+    .sidebar {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent pull-to-refresh */
+    body {
+        overscroll-behavior: none;
     }
 }
 
