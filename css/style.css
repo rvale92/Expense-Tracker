@@ -436,6 +436,8 @@ select:focus {
 @media (max-width: 768px) {
     .app-container {
         grid-template-columns: 1fr;
+        position: relative;
+        overflow-x: hidden;
     }
     
     .sidebar {
@@ -443,14 +445,17 @@ select:focus {
         left: -100%;
         top: 0;
         height: 100vh;
-        width: 100%;
+        width: 85%;
+        max-width: 300px;
         z-index: 1000;
-        transition: left 0.3s ease;
+        transition: transform 0.3s ease;
         background: var(--surface-color);
         box-shadow: var(--shadow-lg);
+        transform: translateX(-100%);
     }
     
     .sidebar.active {
+        transform: translateX(0);
         left: 0;
     }
     
@@ -470,6 +475,7 @@ select:focus {
         justify-content: center;
         cursor: pointer;
         box-shadow: var(--shadow-md);
+        -webkit-tap-highlight-color: transparent;
     }
     
     .mobile-nav-toggle .fa-times {
@@ -488,11 +494,13 @@ select:focus {
         margin-left: 0;
         width: 100%;
         padding: 1rem;
+        min-height: 100vh;
     }
     
     .nav-item {
         padding: 1rem;
         border-bottom: 1px solid var(--border-color);
+        -webkit-tap-highlight-color: transparent;
     }
     
     .nav-item i {
@@ -513,19 +521,39 @@ select:focus {
         width: 100%;
         padding: 0.75rem;
         font-size: 1rem;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding-right: 2rem;
     }
     
     .modal {
-        width: 95%;
-        max-width: 95%;
-        margin: 1rem;
-        padding: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1rem;
     }
     
     .modal-content {
-        padding: 1rem;
+        width: 100%;
+        max-width: 100%;
         max-height: 90vh;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: var(--surface-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        position: relative;
     }
     
     .form-group {
@@ -542,7 +570,13 @@ select:focus {
     .form-group select {
         width: 100%;
         padding: 0.75rem;
-        font-size: 1rem;
+        font-size: 16px !important; /* Prevent iOS zoom */
+        -webkit-appearance: none;
+        appearance: none;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background: var(--background-color);
+        color: var(--text-color);
     }
     
     .button {
@@ -550,6 +584,7 @@ select:focus {
         padding: 0.75rem 1rem;
         font-size: 1rem;
         margin-bottom: 0.5rem;
+        -webkit-tap-highlight-color: transparent;
     }
     
     /* Improve touch targets */
@@ -561,36 +596,52 @@ select:focus {
         min-height: 44px;
     }
     
-    /* Fix dropdown menus */
-    select {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1em;
-        padding-right: 2rem;
+    /* Fix iOS input zoom */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
     }
     
-    /* Fix modal positioning */
+    /* Prevent text selection on mobile */
+    .nav-item,
+    .button,
+    .switcher-select {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+    
+    /* Add touch feedback */
+    .nav-item:active,
+    .button:active,
+    .switcher-select:active {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+    
+    /* Fix iOS momentum scrolling */
+    .modal-content,
+    .sidebar {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent pull-to-refresh */
+    body {
+        overscroll-behavior: none;
+    }
+    
+    /* Fix modal backdrop */
     .modal.active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
+        backdrop-filter: blur(5px);
     }
     
     /* Improve list items for mobile */
     .list-item {
         padding: 1rem;
         margin-bottom: 0.5rem;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .list-item-info {
@@ -633,41 +684,6 @@ select:focus {
     /* Fix chart containers */
     .chart-container {
         height: 200px;
-    }
-    
-    /* Fix iOS input zoom */
-    input,
-    select,
-    textarea {
-        font-size: 16px !important;
-    }
-    
-    /* Prevent text selection on mobile */
-    .nav-item,
-    .button,
-    .switcher-select {
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        user-select: none;
-    }
-    
-    /* Add touch feedback */
-    .nav-item:active,
-    .button:active,
-    .switcher-select:active {
-        opacity: 0.7;
-        transform: scale(0.98);
-    }
-    
-    /* Fix iOS momentum scrolling */
-    .modal-content,
-    .sidebar {
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Prevent pull-to-refresh */
-    body {
-        overscroll-behavior: none;
     }
 }
 

@@ -31,7 +31,9 @@ const elements = {
 // Mobile Navigation
 function setupMobileNavigation() {
     if (elements.mobileNavToggle && elements.sidebar) {
-        elements.mobileNavToggle.addEventListener('click', () => {
+        // Toggle sidebar on mobile menu click
+        elements.mobileNavToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             elements.sidebar.classList.toggle('active');
             elements.mobileNavToggle.classList.toggle('active');
         });
@@ -45,6 +47,11 @@ function setupMobileNavigation() {
                 elements.sidebar.classList.remove('active');
                 elements.mobileNavToggle.classList.remove('active');
             }
+        });
+
+        // Prevent sidebar clicks from closing it
+        elements.sidebar.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
     }
 }
@@ -82,7 +89,13 @@ function openModal(modalId) {
     const modal = document.querySelector(modalId);
     if (modal) {
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        document.body.style.overflow = 'hidden';
+        
+        // Focus first input in modal
+        const firstInput = modal.querySelector('input, select, textarea');
+        if (firstInput) {
+            firstInput.focus();
+        }
     }
 }
 
@@ -90,7 +103,8 @@ function closeModal(modalId) {
     const modal = document.querySelector(modalId);
     if (modal) {
         modal.classList.remove('active');
-        document.body.style.overflow = ''; // Restore scrolling
+        document.body.style.overflow = '';
+        
         // Reset form if exists
         const form = modal.querySelector('form');
         if (form) {
@@ -193,6 +207,7 @@ function setupEventListeners() {
     // Modal close buttons
     document.querySelectorAll('.close-modal').forEach(button => {
         button.addEventListener('click', (e) => {
+            e.stopPropagation();
             const modal = e.target.closest('.modal');
             if (modal) {
                 closeModal(`#${modal.id}`);
@@ -215,6 +230,38 @@ function setupEventListeners() {
             e.stopPropagation();
         });
     });
+
+    // Handle touch events for mobile
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+}
+
+// Touch event handlers
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX;
+}
+
+function handleTouchMove(e) {
+    touchEndX = e.touches[0].clientX;
+}
+
+function handleTouchEnd() {
+    const swipeDistance = touchEndX - touchStartX;
+    if (Math.abs(swipeDistance) > 50) { // Minimum swipe distance
+        if (swipeDistance > 0 && !elements.sidebar.classList.contains('active')) {
+            // Swipe right to open sidebar
+            elements.sidebar.classList.add('active');
+            elements.mobileNavToggle.classList.add('active');
+        } else if (swipeDistance < 0 && elements.sidebar.classList.contains('active')) {
+            // Swipe left to close sidebar
+            elements.sidebar.classList.remove('active');
+            elements.mobileNavToggle.classList.remove('active');
+        }
+    }
 }
 
 // Initialize
