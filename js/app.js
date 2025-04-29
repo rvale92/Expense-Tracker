@@ -372,199 +372,149 @@ function toggleTheme() {
     localStorage.setItem('theme', newTheme);
 }
 
-// Toggle mobile navigation
-mobileNavToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-    mobileNavToggle.classList.toggle('active');
-});
-
-// Close sidebar when clicking outside
-document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('active') &&
-        !sidebar.contains(e.target) &&
-        !mobileNavToggle.contains(e.target)) {
-        sidebar.classList.remove('active');
-        mobileNavToggle.classList.remove('active');
-    }
-});
-
-// Mobile Currency Converter Toggle
-document.querySelector('.currency-converter h3').addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-        currencyConverter.classList.toggle('active');
-    }
-});
-
-// Improve Chart Responsiveness
-function setupChartResponsiveness(chart) {
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            chart.resize();
-        }, 250);
-    });
-}
-
-// Add touch event handling for better mobile interaction
-function addTouchInteractions() {
-    const touchElements = document.querySelectorAll('button, .nav-item, .widget');
+// Mobile Navigation
+function setupMobileNavigation() {
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    const sidebar = document.querySelector('.sidebar');
     
-    touchElements.forEach(element => {
-        element.addEventListener('touchstart', () => {
-            element.style.opacity = '0.7';
+    if (mobileNavToggle && sidebar) {
+        mobileNavToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            mobileNavToggle.classList.toggle('active');
         });
         
-        element.addEventListener('touchend', () => {
-            element.style.opacity = '1';
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('active') && 
+                !sidebar.contains(e.target) && 
+                !mobileNavToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+                mobileNavToggle.classList.remove('active');
+            }
         });
-    });
+    }
 }
 
-// Improve modal handling on mobile
-function setupMobileModals() {
+// Improved Modal Handling
+function setupModals() {
     const modals = document.querySelectorAll('.modal');
     
     modals.forEach(modal => {
-        const content = modal.querySelector('.modal-content');
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal(`#${modal.id}`);
+            }
+        });
         
-        // Prevent modal close when clicking modal content
-        content.addEventListener('click', (e) => {
+        // Close modal when pressing escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal(`#${modal.id}`);
+            }
+        });
+        
+        // Prevent modal from closing when clicking inside
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+    });
+}
+
+// Improved Dropdown Handling
+function setupDropdowns() {
+    const selects = document.querySelectorAll('select');
+    
+    selects.forEach(select => {
+        // Add touch event handling for mobile
+        select.addEventListener('touchstart', (e) => {
             e.stopPropagation();
-        });
+        }, { passive: true });
         
-        // Add touch swipe to close
-        let startY;
-        content.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-        });
-        
-        content.addEventListener('touchmove', (e) => {
-            if (!startY) return;
-            
-            const deltaY = e.touches[0].clientY - startY;
-            if (deltaY > 50) {
-                modal.classList.remove('active');
-                startY = null;
+        // Prevent default behavior on mobile
+        select.addEventListener('mousedown', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                select.focus();
             }
         });
     });
 }
 
-// Section Navigation
-function showSection(sectionId) {
-    // Hide all sections
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.display = 'none';
+// Improved Form Handling
+function setupForms() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        // Prevent form submission on enter key for mobile
+        form.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && window.innerWidth <= 768) {
+                e.preventDefault();
+            }
+        });
+        
+        // Add touch feedback
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('touchstart', () => {
+                input.classList.add('active');
+            }, { passive: true });
+            
+            input.addEventListener('touchend', () => {
+                input.classList.remove('active');
+            }, { passive: true });
+        });
     });
-    
-    // Show selected section
-    const selectedSection = document.getElementById(`${sectionId}-section`);
-    if (selectedSection) {
-        selectedSection.style.display = 'block';
-    }
-    
-    // Update active navigation item
-    document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.classList.remove('active');
-    });
-    document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
-    
-    // Close mobile sidebar after navigation
-    if (window.innerWidth <= 768) {
-        sidebar.classList.remove('active');
-        mobileNavToggle.classList.remove('active');
-    }
 }
 
-// Navigation Event Listeners
-document.querySelectorAll('.sidebar-nav a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const section = e.currentTarget.getAttribute('data-section');
-        showSection(section);
-    });
-});
-
-// Event Listeners
+// Initialize all mobile features
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize state from localStorage
-    state.expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    state.budgets = JSON.parse(localStorage.getItem('budgets')) || [];
-    state.goals = JSON.parse(localStorage.getItem('goals')) || [];
+    // Initialize mobile navigation
+    setupMobileNavigation();
     
-    // Show dashboard section by default
-    showSection('dashboard');
+    // Initialize modals
+    setupModals();
     
-    // Initialize language and currency
+    // Initialize dropdowns
+    setupDropdowns();
+    
+    // Initialize forms
+    setupForms();
+    
+    // Add touch feedback to buttons
+    const buttons = document.querySelectorAll('.button, .nav-item');
+    buttons.forEach(button => {
+        button.addEventListener('touchstart', () => {
+            button.classList.add('active');
+        }, { passive: true });
+        
+        button.addEventListener('touchend', () => {
+            button.classList.remove('active');
+        }, { passive: true });
+    });
+    
+    // Fix iOS viewport height issue
+    function fixViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    fixViewportHeight();
+    window.addEventListener('resize', fixViewportHeight);
+    window.addEventListener('orientationchange', fixViewportHeight);
+    
+    // Prevent pull-to-refresh on mobile
+    document.body.style.overscrollBehavior = 'none';
+    
+    // Initialize other existing functionality
     initializeLocalization();
-    
-    // Initialize charts with improved responsiveness
-    const charts = initializeCharts();
-    Object.values(charts || {}).forEach(setupChartResponsiveness);
-    
-    // Add mobile interactions
-    addTouchInteractions();
-    setupMobileModals();
-    
-    // Update UI
+    initializeCharts();
     updateExpensesList();
     updateBudgetList();
     updateGoalsList();
     updateStats();
-    
-    // Add event listeners for buttons
-    const addExpenseBtn = document.getElementById('add-expense-btn');
-    const addBudgetBtn = document.getElementById('add-budget-btn');
-    const addGoalBtn = document.getElementById('add-goal-btn');
-    
-    if (addExpenseBtn) {
-        addExpenseBtn.addEventListener('click', () => openModal('#add-expense-modal'));
-    }
-    if (addBudgetBtn) {
-        addBudgetBtn.addEventListener('click', () => openModal('#add-budget-modal'));
-    }
-    if (addGoalBtn) {
-        addGoalBtn.addEventListener('click', () => openModal('#add-goal-modal'));
-    }
-    
-    // Add event listeners for forms
-    const expenseForm = document.getElementById('add-expense-form');
-    const budgetForm = document.getElementById('add-budget-form');
-    const goalForm = document.getElementById('add-goal-form');
-    
-    if (expenseForm) {
-        expenseForm.addEventListener('submit', handleExpenseSubmit);
-    }
-    if (budgetForm) {
-        budgetForm.addEventListener('submit', handleBudgetSubmit);
-    }
-    if (goalForm) {
-        goalForm.addEventListener('submit', handleGoalSubmit);
-    }
-    
-    // Add event listeners for modal close buttons
-    document.querySelectorAll('.close-modal').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const modal = e.target.closest('.modal');
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        });
-    });
-    
-    // Close modals when clicking outside
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
-        });
-    });
-    
-    // Add event listener for theme toggle
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-    }
 }); 
