@@ -5,7 +5,8 @@ const state = {
     goals: [],
     theme: 'light',
     language: 'en',
-    currency: 'USD'
+    currency: 'USD',
+    exchangeRate: 1
 };
 
 // DOM Elements
@@ -14,63 +15,88 @@ const elements = {
     sidebar: document.querySelector('.sidebar'),
     mainContent: document.querySelector('.main-content'),
     sections: document.querySelectorAll('.section'),
-    navLinks: document.querySelectorAll('.sidebar-nav a'),
+    navLinks: document.querySelectorAll('.nav-item'),
     modals: document.querySelectorAll('.modal'),
     forms: {
-        expense: document.getElementById('add-expense-form'),
-        budget: document.getElementById('add-budget-form'),
-        goal: document.getElementById('add-goal-form')
+        expense: document.querySelector('#add-expense-form'),
+        budget: document.querySelector('#add-budget-form'),
+        goal: document.querySelector('#add-goal-form')
     },
-    buttons: {
-        addExpense: document.getElementById('add-expense-btn'),
-        addBudget: document.getElementById('add-budget-btn'),
-        addGoal: document.getElementById('add-goal-btn')
-    }
+    languageSelect: document.querySelector('#language-select'),
+    currencySelect: document.querySelector('#currency-select')
 };
+
+// Initialize State
+function initializeState() {
+    const savedState = localStorage.getItem('expenseTrackerState');
+    if (savedState) {
+        Object.assign(state, JSON.parse(savedState));
+    }
+    updateUI();
+}
+
+// Save State
+function saveState() {
+    localStorage.setItem('expenseTrackerState', JSON.stringify(state));
+}
 
 // Mobile Navigation
 function setupMobileNavigation() {
-    if (elements.mobileNavToggle && elements.sidebar) {
-        // Toggle sidebar on mobile menu click
-        elements.mobileNavToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            elements.sidebar.classList.toggle('active');
-            elements.mobileNavToggle.classList.toggle('active');
-        });
+    if (!elements.mobileNavToggle || !elements.sidebar) return;
 
-        // Close sidebar when clicking outside
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && 
-                elements.sidebar.classList.contains('active') && 
-                !elements.sidebar.contains(e.target) && 
-                !elements.mobileNavToggle.contains(e.target)) {
+    elements.mobileNavToggle.addEventListener('click', () => {
+        elements.sidebar.classList.toggle('active');
+        document.body.classList.toggle('modal-open');
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!elements.sidebar.contains(e.target) && 
+            !elements.mobileNavToggle.contains(e.target) && 
+            elements.sidebar.classList.contains('active')) {
+            elements.sidebar.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+    });
+
+    // Touch swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const swipeDistance = touchEndX - touchStartX;
+
+        if (Math.abs(swipeDistance) > swipeThreshold) {
+            if (swipeDistance > 0 && !elements.sidebar.classList.contains('active')) {
+                elements.sidebar.classList.add('active');
+                document.body.classList.add('modal-open');
+            } else if (swipeDistance < 0 && elements.sidebar.classList.contains('active')) {
                 elements.sidebar.classList.remove('active');
-                elements.mobileNavToggle.classList.remove('active');
+                document.body.classList.remove('modal-open');
             }
-        });
-
-        // Prevent sidebar clicks from closing it
-        elements.sidebar.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
+        }
     }
 }
 
 // Section Navigation
 function showSection(sectionId) {
-    // Hide all sections
     elements.sections.forEach(section => {
-        section.style.display = 'none';
+        section.classList.remove('active');
+        if (section.id === sectionId) {
+            section.classList.add('active');
+        }
     });
 
-    // Show selected section
-    const selectedSection = document.getElementById(`${sectionId}-section`);
-    if (selectedSection) {
-        selectedSection.style.display = 'block';
-    }
-
-    // Update active navigation item
     elements.navLinks.forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('data-section') === sectionId) {
@@ -78,10 +104,10 @@ function showSection(sectionId) {
         }
     });
 
-    // Close mobile sidebar after navigation
+    // Close sidebar on mobile
     if (window.innerWidth <= 768) {
         elements.sidebar.classList.remove('active');
-        elements.mobileNavToggle.classList.remove('active');
+        document.body.classList.remove('modal-open');
     }
 }
 
@@ -91,12 +117,6 @@ function openModal(modalId) {
     if (modal) {
         modal.classList.add('active');
         document.body.classList.add('modal-open');
-        
-        // Focus first input in modal
-        const firstInput = modal.querySelector('input, select, textarea');
-        if (firstInput) {
-            firstInput.focus();
-        }
     }
 }
 
@@ -105,12 +125,6 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
-        
-        // Reset form if exists
-        const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-        }
     }
 }
 
@@ -120,18 +134,17 @@ function handleExpenseSubmit(e) {
     const form = e.target;
     const expense = {
         id: Date.now(),
+        date: form.date.value,
+        category: form.category.value,
         description: form.description.value,
         amount: parseFloat(form.amount.value),
-        category: form.category.value,
-        date: new Date().toISOString().split('T')[0],
         currency: state.currency
     };
-    
-    state.expenses = state.expenses || [];
+
     state.expenses.push(expense);
-    localStorage.setItem('expenses', JSON.stringify(state.expenses));
-    updateExpensesList();
-    updateStats();
+    saveState();
+    updateUI();
+    form.reset();
     closeModal('#add-expense-modal');
 }
 
@@ -142,14 +155,14 @@ function handleBudgetSubmit(e) {
         id: Date.now(),
         category: form.category.value,
         amount: parseFloat(form.amount.value),
-        period: 'monthly',
+        period: form.period.value || 'monthly',
         currency: state.currency
     };
-    
-    state.budgets = state.budgets || [];
+
     state.budgets.push(budget);
-    localStorage.setItem('budgets', JSON.stringify(state.budgets));
-    updateBudgetList();
+    saveState();
+    updateUI();
+    form.reset();
     closeModal('#add-budget-modal');
 }
 
@@ -158,17 +171,17 @@ function handleGoalSubmit(e) {
     const form = e.target;
     const goal = {
         id: Date.now(),
-        name: form['goal-name'].value,
-        targetAmount: parseFloat(form['goal-target'].value),
-        currentAmount: parseFloat(form['goal-saved'].value || 0),
-        deadline: form.deadline ? form.deadline.value : null,
+        name: form.name.value,
+        target: parseFloat(form.target.value),
+        saved: parseFloat(form.saved.value) || 0,
+        deadline: form.deadline.value,
         currency: state.currency
     };
-    
-    state.goals = state.goals || [];
+
     state.goals.push(goal);
-    localStorage.setItem('goals', JSON.stringify(state.goals));
-    updateGoalsList();
+    saveState();
+    updateUI();
+    form.reset();
     closeModal('#add-goal-modal');
 }
 
@@ -178,23 +191,20 @@ function setupEventListeners() {
     elements.navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const section = e.currentTarget.getAttribute('data-section');
-            showSection(section);
+            const sectionId = link.getAttribute('data-section');
+            showSection(sectionId);
         });
     });
 
-    // Add buttons
-    if (elements.buttons.addExpense) {
-        elements.buttons.addExpense.addEventListener('click', () => openModal('#add-expense-modal'));
-    }
-    if (elements.buttons.addBudget) {
-        elements.buttons.addBudget.addEventListener('click', () => openModal('#add-budget-modal'));
-    }
-    if (elements.buttons.addGoal) {
-        elements.buttons.addGoal.addEventListener('click', () => openModal('#add-goal-modal'));
-    }
+    // Add Buttons
+    document.querySelectorAll('.add-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const modalId = button.getAttribute('data-modal');
+            openModal(modalId);
+        });
+    });
 
-    // Forms
+    // Form Submissions
     if (elements.forms.expense) {
         elements.forms.expense.addEventListener('submit', handleExpenseSubmit);
     }
@@ -205,96 +215,73 @@ function setupEventListeners() {
         elements.forms.goal.addEventListener('submit', handleGoalSubmit);
     }
 
-    // Modal close buttons
+    // Modal Close Buttons
     document.querySelectorAll('.close-modal').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const modal = e.target.closest('.modal');
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal');
             if (modal) {
                 closeModal(`#${modal.id}`);
             }
         });
     });
 
-    // Close modals when clicking outside
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-            closeModal(`#${e.target.id}`);
-        }
-    });
-
-    // Prevent modal content clicks from closing modal
-    document.querySelectorAll('.modal-content').forEach(content => {
-        content.addEventListener('click', (e) => {
-            e.stopPropagation();
+    // Language and Currency Switchers
+    if (elements.languageSelect) {
+        elements.languageSelect.addEventListener('change', (e) => {
+            state.language = e.target.value;
+            saveState();
+            updateUI();
         });
-    });
-
-    // Handle escape key to close modals
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            const activeModal = document.querySelector('.modal.active');
-            if (activeModal) {
-                closeModal(`#${activeModal.id}`);
-            }
-        }
-    });
-
-    // Handle touch events for mobile
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
-}
-
-// Touch event handlers
-let touchStartX = 0;
-let touchEndX = 0;
-
-function handleTouchStart(e) {
-    touchStartX = e.touches[0].clientX;
-}
-
-function handleTouchMove(e) {
-    touchEndX = e.touches[0].clientX;
-}
-
-function handleTouchEnd() {
-    const swipeDistance = touchEndX - touchStartX;
-    if (Math.abs(swipeDistance) > 50) { // Minimum swipe distance
-        if (swipeDistance > 0 && !elements.sidebar.classList.contains('active')) {
-            // Swipe right to open sidebar
-            elements.sidebar.classList.add('active');
-            elements.mobileNavToggle.classList.add('active');
-        } else if (swipeDistance < 0 && elements.sidebar.classList.contains('active')) {
-            // Swipe left to close sidebar
-            elements.sidebar.classList.remove('active');
-            elements.mobileNavToggle.classList.remove('active');
-        }
     }
+
+    if (elements.currencySelect) {
+        elements.currencySelect.addEventListener('change', (e) => {
+            state.currency = e.target.value;
+            saveState();
+            updateUI();
+        });
+    }
+}
+
+// Update UI
+function updateUI() {
+    // Update language
+    document.documentElement.lang = state.language;
+
+    // Update currency
+    document.querySelectorAll('.amount').forEach(element => {
+        const amount = parseFloat(element.getAttribute('data-amount'));
+        if (!isNaN(amount)) {
+            element.textContent = formatCurrency(amount, state.currency);
+        }
+    });
+
+    // Update theme
+    document.documentElement.setAttribute('data-theme', state.theme);
+
+    // Update lists
+    updateExpensesList();
+    updateBudgetsList();
+    updateGoalsList();
+
+    // Update summaries
+    updateExpenseSummary();
+    updateBudgetSummary();
+    updateGoalSummary();
+}
+
+// Format Currency
+function formatCurrency(amount, currency) {
+    return new Intl.NumberFormat(state.language === 'en' ? 'en-US' : 'es-DO', {
+        style: 'currency',
+        currency: currency
+    }).format(amount);
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize state from localStorage
-    state.expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    state.budgets = JSON.parse(localStorage.getItem('budgets')) || [];
-    state.goals = JSON.parse(localStorage.getItem('goals')) || [];
-    
-    // Setup mobile navigation
+    initializeState();
     setupMobileNavigation();
-    
-    // Setup event listeners
     setupEventListeners();
-    
-    // Show dashboard by default
     showSection('dashboard');
-    
-    // Initialize other functionality
-    initializeLocalization();
-    initializeCharts();
-    updateExpensesList();
-    updateBudgetList();
-    updateGoalsList();
-    updateStats();
 }); 
