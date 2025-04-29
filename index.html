@@ -3,288 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Expense Tracker</title>
-    
-    <!-- Stylesheets -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
+    <title>Expense Tracker</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Mobile Navigation Toggle -->
-        <button class="mobile-nav-toggle">
-            <i class="fas fa-bars"></i>
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1>Expense Tracker</h1>
-                <div class="language-currency-switcher">
-                    <select id="language-select" class="switcher-select">
-                        <option value="en">English</option>
-                        <option value="es">Español</option>
-                    </select>
-                    <select id="currency-select" class="switcher-select">
-                        <option value="USD">USD</option>
-                        <option value="DOP">DOP</option>
-                    </select>
-                </div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="#" data-section="dashboard" class="active"><i class="fas fa-home"></i> <span data-i18n="dashboard">Dashboard</span></a></li>
-                    <li><a href="#" data-section="expenses"><i class="fas fa-receipt"></i> <span data-i18n="expenses">Expenses</span></a></li>
-                    <li><a href="#" data-section="budgets"><i class="fas fa-chart-pie"></i> <span data-i18n="budgets">Budgets</span></a></li>
-                    <li><a href="#" data-section="goals"><i class="fas fa-flag"></i> <span data-i18n="goals">Goals</span></a></li>
-                    <li><a href="#" data-section="settings"><i class="fas fa-cog"></i> <span data-i18n="settings">Settings</span></a></li>
-                </ul>
-            </nav>
-            
-            <div class="currency-converter">
-                <h3 data-i18n="currencyConverter">Currency Converter</h3>
-                <div class="converter-form">
-                    <div class="form-group">
-                        <label data-i18n="amount">Amount</label>
-                        <input type="number" id="convert-amount" min="0" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="from">From</label>
-                        <select id="convert-from">
-                            <option value="USD">USD</option>
-                            <option value="DOP">DOP</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="to">To</label>
-                        <select id="convert-to">
-                            <option value="DOP">DOP</option>
-                            <option value="USD">USD</option>
-                        </select>
-                    </div>
-                    <button id="convert-btn" data-i18n="convert">Convert</button>
-                    <div id="convert-result" class="convert-result"></div>
-                </div>
-            </div>
-            
-            <div class="sidebar-footer">
-                <button class="theme-toggle" data-tooltip="Toggle Theme">
-                    <i class="fas fa-moon"></i>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="app-logo">
+            <i class="fas fa-wallet"></i>
+            <span>Expense Tracker</span>
+        </div>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-chart-pie"></i>
+                        <span data-translate="dashboard">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="expenses">
+                        <i class="fas fa-receipt"></i>
+                        <span data-translate="expenses">Expenses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="budget">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span data-translate="budgets">Budget</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="goals">
+                        <i class="fas fa-bullseye"></i>
+                        <span data-translate="goals">Goals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span data-translate="settings">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title" data-translate="dashboard">Financial Dashboard</h1>
+                <button class="add-expense-btn" data-translate="addExpense">
+                    <i class="fas fa-plus"></i>
+                    Add Expense
                 </button>
             </div>
-        </aside>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="dashboard-header">
-                <h2>Financial Dashboard</h2>
-                <div class="header-actions">
-                    <button class="btn-primary" data-modal="add-expense-modal">
-                        <i class="fas fa-plus"></i> Add Expense
-                    </button>
-                </div>
-            </header>
-            
-            <div class="main-content">
-                <!-- Dashboard Section -->
-                <div class="section" id="dashboard-section">
-                    <div class="dashboard-grid">
-                        <!-- Quick Stats Widget -->
-                        <div class="widget">
-                            <h3 data-i18n="quickStats">Quick Stats</h3>
-                            <div class="quick-stats">
-                                <div class="stat-item">
-                                    <span class="stat-label" data-i18n="totalExpenses">Total Expenses</span>
-                                    <span class="stat-value" id="total-expenses">$0.00</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label" data-i18n="monthlyExpenses">Monthly Expenses</span>
-                                    <span class="stat-value" id="monthly-expenses">$0.00</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Expense Chart Widget -->
-                        <div class="widget">
-                            <h3 data-i18n="expenseChart">Expense Distribution</h3>
-                            <div class="chart-container">
-                                <canvas id="expense-chart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <!-- Budget Chart Widget -->
-                        <div class="widget">
-                            <h3 data-i18n="budgetChart">Budget Overview</h3>
-                            <div class="chart-container">
-                                <canvas id="budget-chart"></canvas>
-                            </div>
-                        </div>
+
+            <!-- Quick Stats -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3 data-translate="totalExpenses">Total Expenses</h3>
+                    <div class="amount" id="total-expenses" data-amount="0">$0.00</div>
+                    <div class="trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+0.0%</span>
                     </div>
                 </div>
-
-                <!-- Expenses Section -->
-                <div class="section" id="expenses-section" style="display: none;">
-                    <h2 data-i18n="expenses">Expenses</h2>
-                    <button class="add-button" id="add-expense-btn" data-i18n="addExpense">Add Expense</button>
-                    <div class="expenses-list" id="expenses-list">
-                        <!-- Expenses will be populated here -->
+                <div class="stat-card">
+                    <h3 data-translate="monthlyBudget">Monthly Budget</h3>
+                    <div class="amount" id="monthly-budget" data-amount="0">$0.00</div>
+                    <div class="trend down">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-0.0%</span>
                     </div>
                 </div>
-
-                <!-- Budgets Section -->
-                <div class="section" id="budgets-section" style="display: none;">
-                    <h2 data-i18n="budgets">Budgets</h2>
-                    <button class="add-button" id="add-budget-btn" data-i18n="addBudget">Add Budget</button>
-                    <div class="budget-list" id="budget-list">
-                        <!-- Budgets will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Goals Section -->
-                <div class="section" id="goals-section" style="display: none;">
-                    <h2 data-i18n="goals">Goals</h2>
-                    <button class="add-button" id="add-goal-btn" data-i18n="addGoal">Add Goal</button>
-                    <div class="goals-list" id="goals-list">
-                        <!-- Goals will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Settings Section -->
-                <div class="section" id="settings-section" style="display: none;">
-                    <h2 data-i18n="settings">Settings</h2>
-                    <div class="settings-container">
-                        <div class="settings-group">
-                            <h3 data-i18n="language">Language</h3>
-                            <select id="language-select">
-                                <option value="en">English</option>
-                                <option value="es">Español</option>
-                            </select>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h3 data-i18n="currency">Currency</h3>
-                            <select id="currency-select">
-                                <option value="USD">USD</option>
-                                <option value="DOP">DOP</option>
-                            </select>
-                        </div>
-                        
-                        <div class="settings-group">
-                            <h3 data-i18n="theme">Theme</h3>
-                            <button class="theme-toggle">
-                                <i class="fas fa-sun"></i>
-                                <i class="fas fa-moon"></i>
-                            </button>
-                        </div>
+                <div class="stat-card">
+                    <h3 data-translate="totalSavings">Total Savings</h3>
+                    <div class="amount" id="total-savings" data-amount="0">$0.00</div>
+                    <div class="trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+0.0%</span>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-    
-    <!-- Modals -->
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Expense Trend</h3>
+                    <div class="chart-container">
+                        <canvas id="expense-trend"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Expense Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="expense-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Overview -->
+            <div class="chart-card">
+                <h3>Budget Overview</h3>
+                <div class="chart-container">
+                    <canvas id="budget-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="transactions-list">
+                <div class="transactions-header">
+                    <h3>Recent Transactions</h3>
+                    <button class="view-all-btn">View All</button>
+                </div>
+                <div id="transactions-container">
+                    <!-- Sample Transaction -->
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-category">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Groceries</h4>
+                                <p>Food & Beverages</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount">-$45.00</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expenses Section -->
+        <section id="expenses" class="section">
+            <div class="page-header">
+                <h1 class="page-title">Expenses</h1>
+                <button class="add-expense-btn">
+                    <i class="fas fa-plus"></i>
+                    Add Expense
+                </button>
+            </div>
+            <div class="transactions-list">
+                <div class="transactions-header">
+                    <h3>All Transactions</h3>
+                    <div class="transactions-filters">
+                        <select class="form-input" id="category-filter">
+                            <option value="">All Categories</option>
+                            <option value="food">Food & Beverages</option>
+                            <option value="transport">Transportation</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="others">Others</option>
+                        </select>
+                        <input type="date" class="form-input" id="date-filter">
+                    </div>
+                </div>
+                <div id="all-transactions-container"></div>
+            </div>
+        </section>
+
+        <!-- Budget Section -->
+        <section id="budget" class="section">
+            <div class="page-header">
+                <h1 class="page-title" data-translate="budgetManagement">Budget Management</h1>
+                <button class="add-budget-btn" data-translate="addBudget">
+                    <i class="fas fa-plus"></i>
+                    Set Budget
+                </button>
+            </div>
+            <div class="budget-overview">
+                <div class="chart-card">
+                    <h3>Category Budgets</h3>
+                    <div class="chart-container">
+                        <canvas id="category-budget-chart"></canvas>
+                    </div>
+                </div>
+                <div id="budget-list" class="budget-list"></div>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section id="goals" class="section">
+            <div class="page-header">
+                <h1 class="page-title" data-translate="savingsGoals">Savings Goals</h1>
+                <button class="add-goal-btn" data-translate="addGoal">
+                    <i class="fas fa-plus"></i>
+                    Add Goal
+                </button>
+            </div>
+            <div class="goals-grid" id="goals-container"></div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="section">
+            <div class="page-header">
+                <h1 class="page-title" data-translate="settings">Settings</h1>
+            </div>
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3 data-translate="theme">Theme</h3>
+                    <div class="theme-toggle">
+                        <button class="theme-btn active" data-theme="light" data-translate="light">Light</button>
+                        <button class="theme-btn" data-theme="dark" data-translate="dark">Dark</button>
+                    </div>
+                </div>
+                <div class="settings-card">
+                    <h3 data-translate="currency">Currency</h3>
+                    <select class="form-input" id="currency-select">
+                        <option value="USD">USD ($)</option>
+                        <option value="DOP">DOP (RD$)</option>
+                    </select>
+                </div>
+
+                <!-- Add Currency Converter -->
+                <div class="settings-card">
+                    <h3 data-translate="currencyConverter">Currency Converter</h3>
+                    <div class="converter-form">
+                        <div class="form-group">
+                            <label class="form-label" for="convert-amount">Amount</label>
+                            <input type="number" id="convert-amount" class="form-input" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="convert-from">From</label>
+                            <select id="convert-from" class="form-input">
+                                <option value="USD">USD ($)</option>
+                                <option value="DOP">DOP (RD$)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="convert-to">To</label>
+                            <select id="convert-to" class="form-input">
+                                <option value="DOP">DOP (RD$)</option>
+                                <option value="USD">USD ($)</option>
+                            </select>
+                        </div>
+                        <button id="convert-btn" class="form-submit">Convert</button>
+                        <div id="conversion-result" class="conversion-result"></div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 data-translate="language">Language</h3>
+                    <select class="form-input" id="settings-language" name="language" required>
+                        <option value="en" data-translate="english">English</option>
+                        <option value="es" data-translate="spanish">Spanish</option>
+                    </select>
+                </div>
+                <div class="settings-card">
+                    <h3 data-translate="dataManagement">Data Management</h3>
+                    <button class="danger-btn" id="clear-data-btn" data-translate="clearAllData">Clear All Data</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- Add Expense Modal -->
     <div class="modal" id="add-expense-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add New Expense</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="add-expense-form">
+            <button class="modal-close">&times;</button>
+            <h2 data-translate="addExpense">Add New Expense</h2>
+            <form id="expense-form" class="form">
                 <div class="form-group">
-                    <label for="description">Description</label>
-                    <input type="text" id="description" name="description" required>
+                    <label class="form-label" for="expense-date" data-translate="date">Date</label>
+                    <input type="date" id="expense-date" class="form-input" required>
                 </div>
                 <div class="form-group">
-                    <label for="amount">Amount</label>
-                    <input type="number" id="amount" name="amount" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" name="category" required>
-                        <option value="Housing">Housing</option>
-                        <option value="Transportation">Transportation</option>
-                        <option value="Food">Food</option>
-                        <option value="Utilities">Utilities</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Entertainment">Entertainment</option>
-                        <option value="Shopping">Shopping</option>
-                        <option value="Education">Education</option>
-                        <option value="Savings">Savings</option>
-                        <option value="Other">Other</option>
+                    <label class="form-label" for="expense-category" data-translate="category">Category</label>
+                    <select id="expense-category" class="form-input" required>
+                        <option value="">Select a category</option>
+                        <option value="food" data-translate="food">Food & Beverages</option>
+                        <option value="transport" data-translate="transport">Transportation</option>
+                        <option value="utilities" data-translate="utilities">Utilities</option>
+                        <option value="entertainment" data-translate="entertainment">Entertainment</option>
+                        <option value="shopping" data-translate="shopping">Shopping</option>
+                        <option value="others" data-translate="others">Others</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-primary">Add Expense</button>
+                <div class="form-group">
+                    <label class="form-label" for="expense-description" data-translate="description">Description</label>
+                    <input type="text" id="expense-description" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="expense-amount" data-translate="amount">Amount</label>
+                    <input type="number" id="expense-amount" class="form-input" step="0.01" min="0" required>
+                </div>
+                <button type="submit" class="form-submit" data-translate="submit">Add Expense</button>
             </form>
         </div>
     </div>
-    
+
     <!-- Add Budget Modal -->
     <div class="modal" id="add-budget-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Set Budget</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="add-budget-form">
+            <button class="modal-close">&times;</button>
+            <h2 data-translate="setBudget">Set Budget</h2>
+            <form id="budget-form" class="form">
                 <div class="form-group">
-                    <label for="budget-category">Category</label>
-                    <select id="budget-category" name="category" required>
-                        <option value="Housing">Housing</option>
-                        <option value="Transportation">Transportation</option>
-                        <option value="Food">Food</option>
-                        <option value="Utilities">Utilities</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Entertainment">Entertainment</option>
-                        <option value="Shopping">Shopping</option>
-                        <option value="Education">Education</option>
-                        <option value="Savings">Savings</option>
-                        <option value="Other">Other</option>
+                    <label class="form-label" for="budget-name" data-translate="budgetName">Budget Name</label>
+                    <input type="text" id="budget-name" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="budget-category" data-translate="category">Category</label>
+                    <select id="budget-category" name="category" class="form-input" required>
+                        <option value="">Select a category</option>
+                        <option value="food" data-translate="food">Food</option>
+                        <option value="housing" data-translate="housing">Housing</option>
+                        <option value="transportation" data-translate="transport">Transportation</option>
+                        <option value="entertainment" data-translate="entertainment">Entertainment</option>
+                        <option value="utilities" data-translate="utilities">Utilities</option>
+                        <option value="salary" data-translate="salary">Salary</option>
+                        <option value="other" data-translate="others">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="budget-amount">Monthly Budget</label>
-                    <input type="number" id="budget-amount" name="amount" step="0.01" required>
+                    <label class="form-label" for="budget-amount" data-translate="amount">Amount</label>
+                    <input type="number" id="budget-amount" name="amount" class="form-input" step="0.01" min="0" required>
                 </div>
-                <button type="submit" class="btn-primary">Set Budget</button>
+                <div class="form-group">
+                    <label class="form-label" for="budget-start-date" data-translate="startDate">Start Date</label>
+                    <input type="date" id="budget-start-date" name="start-date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="budget-end-date" data-translate="endDate">End Date</label>
+                    <input type="date" id="budget-end-date" name="end-date" class="form-input" required>
+                </div>
+                <button type="submit" class="form-submit" data-translate="submit">Set Budget</button>
             </form>
         </div>
     </div>
-    
+
     <!-- Add Goal Modal -->
     <div class="modal" id="add-goal-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add Financial Goal</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="add-goal-form">
+            <button class="modal-close">&times;</button>
+            <h2 data-translate="addGoal">Add Savings Goal</h2>
+            <form id="goal-form" class="form">
                 <div class="form-group">
-                    <label for="goal-name">Goal Name</label>
-                    <input type="text" id="goal-name" name="name" required>
+                    <label class="form-label" for="goal-title" data-translate="goalTitle">Goal Title</label>
+                    <input type="text" id="goal-title" name="title" class="form-input" required>
                 </div>
                 <div class="form-group">
-                    <label for="goal-target">Target Amount</label>
-                    <input type="number" id="goal-target" name="target" step="0.01" required>
+                    <label class="form-label" for="goal-description" data-translate="goalDescription">Description</label>
+                    <textarea id="goal-description" name="description" class="form-input" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="goal-saved">Amount Saved</label>
-                    <input type="number" id="goal-saved" name="saved" step="0.01" value="0">
+                    <label class="form-label" for="goal-target-amount" data-translate="targetAmount">Target Amount</label>
+                    <input type="number" id="goal-target-amount" name="target-amount" class="form-input" step="0.01" min="0" required>
                 </div>
-                <button type="submit" class="btn-primary">Add Goal</button>
+                <div class="form-group">
+                    <label class="form-label" for="goal-target-date" data-translate="targetDate">Target Date</label>
+                    <input type="date" id="goal-target-date" name="target-date" class="form-input" required>
+                </div>
+                <button type="submit" class="form-submit" data-translate="submit">Add Goal</button>
             </form>
         </div>
     </div>
-    
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2 data-translate="settings">Settings</h2>
+            <form id="settings-form" class="form">
+                <div class="form-group">
+                    <label class="form-label" for="settings-currency">Currency</label>
+                    <select id="settings-currency" name="currency" class="form-input" required>
+                        <option value="USD">USD ($)</option>
+                        <option value="DOP">DOP (RD$)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="settings-language">Language</label>
+                    <select id="settings-language" name="language" class="form-input" required>
+                        <option value="en" data-translate="english">English</option>
+                        <option value="es" data-translate="spanish">Spanish</option>
+                    </select>
+                </div>
+                <button type="submit" class="form-submit">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/translations.js"></script>
     <script src="js/app.js"></script>
 </body>

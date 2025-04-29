@@ -9,7 +9,8 @@ const translations = {
         
         // Quick Stats
         totalExpenses: "Total Expenses",
-        monthlyExpenses: "Monthly Expenses",
+        monthlyBudget: "Monthly Budget",
+        totalSavings: "Total Savings",
         
         // Forms
         addExpense: "Add Expense",
@@ -23,11 +24,14 @@ const translations = {
         cancel: "Cancel",
         
         // Categories
-        food: "Food",
-        transport: "Transport",
+        food: "Food & Beverages",
+        transport: "Transportation",
+        utilities: "Utilities",
         entertainment: "Entertainment",
-        bills: "Bills",
+        shopping: "Shopping",
         others: "Others",
+        housing: "Housing",
+        salary: "Salary",
         
         // Currency
         currency: "Currency",
@@ -38,13 +42,37 @@ const translations = {
         language: "Language",
         english: "English",
         spanish: "Spanish",
+        theme: "Theme",
+        light: "Light",
+        dark: "Dark",
+        dataManagement: "Data Management",
+        clearAllData: "Clear All Data",
         
         // Converter
         currencyConverter: "Currency Converter",
         convert: "Convert",
         from: "From",
         to: "To",
-        result: "Result"
+        result: "Result",
+        
+        // Budget Management
+        budgetManagement: "Budget Management",
+        setBudget: "Set Budget",
+        budgetName: "Budget Name",
+        startDate: "Start Date",
+        endDate: "End Date",
+        categoryBudgets: "Category Budgets",
+        
+        // Goals
+        savingsGoals: "Savings Goals",
+        goalTitle: "Goal Title",
+        goalDescription: "Description",
+        targetAmount: "Target Amount",
+        targetDate: "Target Date",
+        
+        // Modals
+        addNewExpense: "Add New Expense",
+        saveSettings: "Save Settings"
     },
     es: {
         // Navigation
@@ -56,7 +84,8 @@ const translations = {
         
         // Quick Stats
         totalExpenses: "Gastos Totales",
-        monthlyExpenses: "Gastos Mensuales",
+        monthlyBudget: "Presupuesto Mensual",
+        totalSavings: "Ahorros Totales",
         
         // Forms
         addExpense: "Agregar Gasto",
@@ -70,11 +99,14 @@ const translations = {
         cancel: "Cancelar",
         
         // Categories
-        food: "Comida",
+        food: "Alimentos y Bebidas",
         transport: "Transporte",
+        utilities: "Servicios",
         entertainment: "Entretenimiento",
-        bills: "Facturas",
+        shopping: "Compras",
         others: "Otros",
+        housing: "Vivienda",
+        salary: "Salario",
         
         // Currency
         currency: "Moneda",
@@ -85,12 +117,36 @@ const translations = {
         language: "Idioma",
         english: "Inglés",
         spanish: "Español",
+        theme: "Tema",
+        light: "Claro",
+        dark: "Oscuro",
+        dataManagement: "Gestión de Datos",
+        clearAllData: "Borrar Todos los Datos",
         
         // Converter
         currencyConverter: "Conversor de Moneda",
         convert: "Convertir",
         from: "De",
         to: "A",
-        result: "Resultado"
+        result: "Resultado",
+        
+        // Budget Management
+        budgetManagement: "Gestión de Presupuesto",
+        setBudget: "Establecer Presupuesto",
+        budgetName: "Nombre del Presupuesto",
+        startDate: "Fecha de Inicio",
+        endDate: "Fecha de Fin",
+        categoryBudgets: "Presupuestos por Categoría",
+        
+        // Goals
+        savingsGoals: "Metas de Ahorro",
+        goalTitle: "Título de la Meta",
+        goalDescription: "Descripción",
+        targetAmount: "Monto Objetivo",
+        targetDate: "Fecha Objetivo",
+        
+        // Modals
+        addNewExpense: "Agregar Nuevo Gasto",
+        saveSettings: "Guardar Ajustes"
     }
 }; 
