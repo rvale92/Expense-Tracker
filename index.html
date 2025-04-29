@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Expense Tracker</title>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Mobile Navigation Toggle -->
+        <button class="mobile-nav-toggle">
+            <i class="fas fa-bars"></i>
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Expense Tracker</h1>
+                <div class="language-currency-switcher">
+                    <select id="language-select" class="switcher-select">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                    <select id="currency-select" class="switcher-select">
+                        <option value="USD">USD</option>
+                        <option value="DOP">DOP</option>
+                    </select>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" data-section="dashboard" class="active"><i class="fas fa-home"></i> <span data-i18n="dashboard">Dashboard</span></a></li>
+                    <li><a href="#" data-section="expenses"><i class="fas fa-receipt"></i> <span data-i18n="expenses">Expenses</span></a></li>
+                    <li><a href="#" data-section="budgets"><i class="fas fa-chart-pie"></i> <span data-i18n="budgets">Budgets</span></a></li>
+                    <li><a href="#" data-section="goals"><i class="fas fa-flag"></i> <span data-i18n="goals">Goals</span></a></li>
+                    <li><a href="#" data-section="settings"><i class="fas fa-cog"></i> <span data-i18n="settings">Settings</span></a></li>
+                </ul>
+            </nav>
+            
+            <div class="currency-converter">
+                <h3 data-i18n="currencyConverter">Currency Converter</h3>
+                <div class="converter-form">
+                    <div class="form-group">
+                        <label data-i18n="amount">Amount</label>
+                        <input type="number" id="convert-amount" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="from">From</label>
+                        <select id="convert-from">
+                            <option value="USD">USD</option>
+                            <option value="DOP">DOP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="to">To</label>
+                        <select id="convert-to">
+                            <option value="DOP">DOP</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <button id="convert-btn" data-i18n="convert">Convert</button>
+                    <div id="convert-result" class="convert-result"></div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="theme-toggle" data-tooltip="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h2>Financial Dashboard</h2>
+                <div class="header-actions">
+                    <button class="btn-primary" data-modal="add-expense-modal">
+                        <i class="fas fa-plus"></i> Add Expense
+                    </button>
+                </div>
+            </header>
+            
+            <div class="main-content">
+                <!-- Dashboard Section -->
+                <div class="section" id="dashboard-section">
+                    <div class="dashboard-grid">
+                        <!-- Quick Stats Widget -->
+                        <div class="widget">
+                            <h3 data-i18n="quickStats">Quick Stats</h3>
+                            <div class="quick-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label" data-i18n="totalExpenses">Total Expenses</span>
+                                    <span class="stat-value" id="total-expenses">$0.00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label" data-i18n="monthlyExpenses">Monthly Expenses</span>
+                                    <span class="stat-value" id="monthly-expenses">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Expense Chart Widget -->
+                        <div class="widget">
+                            <h3 data-i18n="expenseChart">Expense Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="expense-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Budget Chart Widget -->
+                        <div class="widget">
+                            <h3 data-i18n="budgetChart">Budget Overview</h3>
+                            <div class="chart-container">
+                                <canvas id="budget-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses Section -->
+                <div class="section" id="expenses-section" style="display: none;">
+                    <h2 data-i18n="expenses">Expenses</h2>
+                    <button class="add-button" id="add-expense-btn" data-i18n="addExpense">Add Expense</button>
+                    <div class="expenses-list" id="expenses-list">
+                        <!-- Expenses will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Budgets Section -->
+                <div class="section" id="budgets-section" style="display: none;">
+                    <h2 data-i18n="budgets">Budgets</h2>
+                    <button class="add-button" id="add-budget-btn" data-i18n="addBudget">Add Budget</button>
+                    <div class="budget-list" id="budget-list">
+                        <!-- Budgets will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Goals Section -->
+                <div class="section" id="goals-section" style="display: none;">
+                    <h2 data-i18n="goals">Goals</h2>
+                    <button class="add-button" id="add-goal-btn" data-i18n="addGoal">Add Goal</button>
+                    <div class="goals-list" id="goals-list">
+                        <!-- Goals will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div class="section" id="settings-section" style="display: none;">
+                    <h2 data-i18n="settings">Settings</h2>
+                    <div class="settings-container">
+                        <div class="settings-group">
+                            <h3 data-i18n="language">Language</h3>
+                            <select id="language-select">
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                            </select>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3 data-i18n="currency">Currency</h3>
+                            <select id="currency-select">
+                                <option value="USD">USD</option>
+                                <option value="DOP">DOP</option>
+                            </select>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3 data-i18n="theme">Theme</h3>
+                            <button class="theme-toggle">
+                                <i class="fas fa-sun"></i>
+                                <i class="fas fa-moon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modals -->
+    <!-- Add Expense Modal -->
+    <div class="modal" id="add-expense-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Expense</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="add-expense-form">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="Housing">Housing</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Food">Food</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Education">Education</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Add Expense</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Budget Modal -->
+    <div class="modal" id="add-budget-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Set Budget</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="add-budget-form">
+                <div class="form-group">
+                    <label for="budget-category">Category</label>
+                    <select id="budget-category" name="category" required>
+                        <option value="Housing">Housing</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Food">Food</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Education">Education</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="budget-amount">Monthly Budget</label>
+                    <input type="number" id="budget-amount" name="amount" step="0.01" required>
+                </div>
+                <button type="submit" class="btn-primary">Set Budget</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Goal Modal -->
+    <div class="modal" id="add-goal-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Financial Goal</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="add-goal-form">
+                <div class="form-group">
+                    <label for="goal-name">Goal Name</label>
+                    <input type="text" id="goal-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="goal-target">Target Amount</label>
+                    <input type="number" id="goal-target" name="target" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="goal-saved">Amount Saved</label>
+                    <input type="number" id="goal-saved" name="saved" step="0.01" value="0">
+                </div>
+                <button type="submit" class="btn-primary">Add Goal</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
