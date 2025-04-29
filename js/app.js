@@ -92,7 +92,7 @@ function setupMobileNavigation() {
 function showSection(sectionId) {
     elements.sections.forEach(section => {
         section.classList.remove('active');
-        if (section.id === sectionId) {
+        if (section.id === `${sectionId}-section`) {
             section.classList.add('active');
         }
     });
@@ -117,6 +117,12 @@ function openModal(modalId) {
     if (modal) {
         modal.classList.add('active');
         document.body.classList.add('modal-open');
+        
+        // Focus first input
+        const firstInput = modal.querySelector('input, select, textarea');
+        if (firstInput) {
+            firstInput.focus();
+        }
     }
 }
 
@@ -125,6 +131,12 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
+        
+        // Reset form if exists
+        const form = modal.querySelector('form');
+        if (form) {
+            form.reset();
+        }
     }
 }
 
@@ -134,7 +146,7 @@ function handleExpenseSubmit(e) {
     const form = e.target;
     const expense = {
         id: Date.now(),
-        date: form.date.value,
+        date: form.date.value || new Date().toISOString().split('T')[0],
         category: form.category.value,
         description: form.description.value,
         amount: parseFloat(form.amount.value),
@@ -183,6 +195,41 @@ function handleGoalSubmit(e) {
     updateUI();
     form.reset();
     closeModal('#add-goal-modal');
+}
+
+// Update UI
+function updateUI() {
+    // Update language
+    document.documentElement.lang = state.language;
+
+    // Update currency
+    document.querySelectorAll('.amount').forEach(element => {
+        const amount = parseFloat(element.getAttribute('data-amount'));
+        if (!isNaN(amount)) {
+            element.textContent = formatCurrency(amount, state.currency);
+        }
+    });
+
+    // Update theme
+    document.documentElement.setAttribute('data-theme', state.theme);
+
+    // Update lists
+    updateExpensesList();
+    updateBudgetsList();
+    updateGoalsList();
+
+    // Update summaries
+    updateExpenseSummary();
+    updateBudgetSummary();
+    updateGoalSummary();
+}
+
+// Format Currency
+function formatCurrency(amount, currency) {
+    return new Intl.NumberFormat(state.language === 'en' ? 'en-US' : 'es-DO', {
+        style: 'currency',
+        currency: currency
+    }).format(amount);
 }
 
 // Event Listeners
@@ -241,41 +288,16 @@ function setupEventListeners() {
             updateUI();
         });
     }
-}
 
-// Update UI
-function updateUI() {
-    // Update language
-    document.documentElement.lang = state.language;
-
-    // Update currency
-    document.querySelectorAll('.amount').forEach(element => {
-        const amount = parseFloat(element.getAttribute('data-amount'));
-        if (!isNaN(amount)) {
-            element.textContent = formatCurrency(amount, state.currency);
-        }
-    });
-
-    // Update theme
-    document.documentElement.setAttribute('data-theme', state.theme);
-
-    // Update lists
-    updateExpensesList();
-    updateBudgetsList();
-    updateGoalsList();
-
-    // Update summaries
-    updateExpenseSummary();
-    updateBudgetSummary();
-    updateGoalSummary();
-}
-
-// Format Currency
-function formatCurrency(amount, currency) {
-    return new Intl.NumberFormat(state.language === 'en' ? 'en-US' : 'es-DO', {
-        style: 'currency',
-        currency: currency
-    }).format(amount);
+    // Theme Toggle
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            saveState();
+            updateUI();
+        });
+    }
 }
 
 // Initialize
