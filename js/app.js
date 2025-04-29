@@ -207,6 +207,7 @@ function setupEventListeners() {
     // Modal close buttons
     document.querySelectorAll('.close-modal').forEach(button => {
         button.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
             const modal = e.target.closest('.modal');
             if (modal) {
@@ -216,12 +217,10 @@ function setupEventListeners() {
     });
 
     // Close modals when clicking outside
-    elements.modals.forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal(`#${modal.id}`);
-            }
-        });
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            closeModal(`#${e.target.id}`);
+        }
     });
 
     // Prevent modal content clicks from closing modal
@@ -229,6 +228,16 @@ function setupEventListeners() {
         content.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+    });
+
+    // Handle escape key to close modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const activeModal = document.querySelector('.modal.active');
+            if (activeModal) {
+                closeModal(`#${activeModal.id}`);
+            }
+        }
     });
 
     // Handle touch events for mobile
