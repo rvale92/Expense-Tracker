@@ -351,11 +351,10 @@ canvas {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
-    padding: 1rem;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -367,15 +366,15 @@ canvas {
 }
 
 .modal-content {
-    background: var(--surface-color);
-    border-radius: var(--border-radius);
+    background: var(--background-color);
     padding: 1.5rem;
-    width: 100%;
+    border-radius: 0.5rem;
+    width: 90%;
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    z-index: 1001;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-header {
@@ -383,26 +382,19 @@ canvas {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
+    position: sticky;
+    top: 0;
+    background: var(--background-color);
+    padding: 1rem 0;
+    z-index: 1;
 }
 
 .close-modal {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: var(--text-color);
     cursor: pointer;
-    padding: 0.5rem;
-    line-height: 1;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.close-modal:hover {
-    color: var(--primary-color);
+    color: var(--text-color);
 }
 
 /* Forms */
@@ -411,31 +403,31 @@ form {
 }
 
 .form-group {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 1rem;
 }
 
-label {
+.form-group label {
     display: block;
-    margin-bottom: var(--spacing-xs);
-    color: var(--text-secondary);
-    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
 }
 
-input,
-select {
+.form-group input,
+.form-group select {
     width: 100%;
-    padding: var(--spacing-sm);
+    padding: 0.75rem;
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background-color: var(--background-color);
-    color: var(--text-primary);
-    transition: var(--transition);
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-input:focus,
-select:focus {
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
 }
 
 /* Utilities */
@@ -453,59 +445,47 @@ select:focus {
     
     .sidebar {
         position: fixed;
-        left: -100%;
         top: 0;
-        height: 100vh;
-        width: 85%;
+        left: -100%;
+        width: 80%;
         max-width: 300px;
-        z-index: 1000;
-        transition: transform 0.3s ease;
-        background: var(--surface-color);
-        box-shadow: var(--shadow-lg);
-        transform: translateX(-100%);
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s ease;
+        background: var(--background-color);
+        box-shadow: var(--shadow-md);
     }
     
     .sidebar.active {
-        transform: translateX(0);
         left: 0;
     }
     
     .mobile-nav-toggle {
-        display: flex;
+        display: block;
         position: fixed;
         top: 1rem;
-        right: 1rem;
-        z-index: 1001;
+        left: 1rem;
+        z-index: 1000;
         background: var(--primary-color);
         color: white;
         border: none;
-        width: 3rem;
-        height: 3rem;
-        border-radius: 50%;
-        align-items: center;
-        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
         cursor: pointer;
-        box-shadow: var(--shadow-md);
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .mobile-nav-toggle .fa-times {
-        display: none;
-    }
-    
-    .mobile-nav-toggle.active .fa-bars {
-        display: none;
-    }
-    
-    .mobile-nav-toggle.active .fa-times {
-        display: inline;
     }
     
     .main-content {
         margin-left: 0;
         width: 100%;
+    }
+    
+    .sidebar-nav {
+        padding-top: 4rem;
+    }
+    
+    .sidebar-nav a {
         padding: 1rem;
-        min-height: 100vh;
+        margin: 0.5rem 0;
     }
     
     .nav-item {
@@ -597,14 +577,6 @@ select:focus {
         border-radius: var(--border-radius);
         background: var(--background-color);
         color: var(--text-color);
-    }
-    
-    .button {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-        -webkit-tap-highlight-color: transparent;
     }
     
     /* Improve touch targets */

@@ -33,6 +33,7 @@ function setupMobileNavigation() {
     if (elements.mobileNavToggle && elements.sidebar) {
         // Toggle sidebar on mobile menu click
         elements.mobileNavToggle.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
             elements.sidebar.classList.toggle('active');
             elements.mobileNavToggle.classList.toggle('active');
@@ -89,7 +90,7 @@ function openModal(modalId) {
     const modal = document.querySelector(modalId);
     if (modal) {
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
         
         // Focus first input in modal
         const firstInput = modal.querySelector('input, select, textarea');
@@ -103,7 +104,7 @@ function closeModal(modalId) {
     const modal = document.querySelector(modalId);
     if (modal) {
         modal.classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
         
         // Reset form if exists
         const form = modal.querySelector('form');
