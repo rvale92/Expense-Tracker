@@ -1,3 +1,5 @@
+import ExpenseVisualizer from './three-visualizations.js';
+
 // State Management
 const state = {
     expenses: [],
@@ -5,7 +7,8 @@ const state = {
     goals: [],
     theme: 'light',
     currency: 'USD',
-    language: 'en'
+    language: 'en',
+    currentView: '3d-pie' // or '3d-bar'
 };
 
 // Currency symbols
@@ -71,13 +74,18 @@ const elements = {
     convertFrom: document.getElementById('convert-from'),
     convertTo: document.getElementById('convert-to'),
     convertBtn: document.getElementById('convert-btn'),
-    conversionResult: document.getElementById('conversion-result')
+    conversionResult: document.getElementById('conversion-result'),
+    chartContainer: document.getElementById('expense-chart-container'),
+    chartToggle: document.getElementById('chart-toggle'),
 };
 
 // Initialize Charts
 let expenseDistributionChart;
 let budgetOverviewChart;
 let expenseLineChart;
+
+// Initialize Three.js visualizer
+const expenseVisualizer = new ExpenseVisualizer('expense-chart-container');
 
 function initializeCharts() {
     // Expense Distribution Chart (Doughnut)
@@ -928,7 +936,69 @@ function init() {
     
     // Update UI
     updateUI();
+
+    // Initial 3D chart render
+    updateExpenseSummary();
 }
 
 // Start the application
-document.addEventListener('DOMContentLoaded', init); 
+document.addEventListener('DOMContentLoaded', init);
+
+// Update the updateExpenseSummary function to include 3D visualization
+function updateExpenseSummary() {
+    const expensesByCategory = {};
+    state.expenses.forEach(expense => {
+        expensesByCategory[expense.category] = (expensesByCategory[expense.category] || 0) + expense.amount;
+    });
+
+    // Update summary text
+    // ... existing summary update code ...
+
+    // Update 3D visualization
+    if (state.currentView === '3d-pie') {
+        expenseVisualizer.createExpensePieChart(expensesByCategory);
+    } else {
+        expenseVisualizer.createExpenseBarChart(expensesByCategory);
+    }
+}
+
+// Add chart toggle functionality
+elements.chartToggle.addEventListener('click', () => {
+    state.currentView = state.currentView === '3d-pie' ? '3d-bar' : '3d-pie';
+    updateExpenseSummary();
+});
+
+// Enhanced form submission with animation
+function handleExpenseSubmit(e) {
+    e.preventDefault();
+    
+    // ... existing validation code ...
+
+    const newExpense = {
+        date: elements.dateInput.value,
+        category: elements.categoryInput.value,
+        description: elements.descriptionInput.value,
+        amount: parseFloat(elements.amountInput.value)
+    };
+
+    state.expenses.push(newExpense);
+    updateExpenseList();
+    updateExpenseSummary();
+
+    // Clear form
+    e.target.reset();
+
+    // Show success animation
+    showSuccessAnimation();
+}
+
+// Add success animation
+function showSuccessAnimation() {
+    const success = document.createElement('div');
+    success.className = 'success-animation';
+    document.body.appendChild(success);
+    
+    setTimeout(() => {
+        success.remove();
+    }, 1500);
+} 

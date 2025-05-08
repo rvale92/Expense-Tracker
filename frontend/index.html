@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com;">
-    <title>Expense Tracker</title>
+    <title>3D Expense Tracker</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -53,19 +61,16 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="section active">
-            <!-- Page Header -->
-            <div class="page-header">
-                <h1 class="page-title" data-translate="dashboard">Financial Dashboard</h1>
-                <button class="add-expense-btn" data-translate="addExpense">
-                    <i class="fas fa-plus"></i>
-                    Add Expense
-                </button>
+        <div class="dashboard-section section" id="dashboard">
+            <h2>Dashboard</h2>
+            
+            <!-- 3D Visualization Container -->
+            <div id="expense-chart-container">
+                <button id="chart-toggle">Toggle Chart Type</button>
             </div>
 
             <!-- Quick Stats -->
-            <div class="dashboard-grid">
+            <div class="quick-stats">
                 <div class="stat-card">
                     <h3 data-translate="totalExpenses">Total Expenses</h3>
                     <div class="amount" id="total-expenses" data-amount="0">$0.00</div>
@@ -138,7 +143,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Expenses Section -->
         <section id="expenses" class="section">
@@ -398,6 +403,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/translations.js"></script>
-    <script src="js/app.js"></script>
+    <script type="module" src="js/three-visualizations.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
